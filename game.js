@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 /* =========================================================
-   DARK DHETH JOKER v039
+   DARK DHETH JOKER v040
    Rules (unchanged):
    - 2 vs 2, decimal blackjack (each card has +0.0〜+0.9), 52 + JOKER(0〜10)
    - start ¥50万 each. The single highest valid total wins and takes
@@ -18,7 +18,9 @@ const suits=['♠','♥','♦','♣'],ranks=['A','2','3','4','5','6','7','8','9'
 const ACTS=['draw','discard','win','shout','hurt','collapse','revive','attack','attackBig','bust','turn'];
 // v033: slower, with clear beats between events (ms)
 const TEMPO={deal:230,hit:380,cpuThink:560,cpuDraw:520,near21:420,bust:1050,winPose:380,winFreeze:800,loserReact:450,money:800,deathHold:550,collapse:950,postRound:1100,raise:700,beat:420,roundCall:1400,turnCall:900,jokerCall:1300};
-const BIG_HIT=20.0;   // totals at/above this use the heavy attack
+const BIG_HIT=20.0;
+// v040 anti-stall rules: exact 21.0 = BLACKJACK (winner deals ×2). A busted loser takes ×2. They stack (×4).
+const BJ_MULT=2, BUST_MULT=2;   // totals at/above this use the heavy attack
 
 /* ---------------------------------------------------------
    STAGE SPRITE ANIMATION
@@ -441,8 +443,10 @@ async function resolve(){
   wa.classList.add('winFreeze');
   S.play('se_win_flash');FX.flash('#fff6d0',160,.45);
   {const b=actorBox(winIdx);FX.burst(b.x,b.top+b.h*.45,240);FX.sparks(b.x,b.top+b.h*.45)}
-  say(`${NAME[winIdx]} ${winIdx===0?'WIN':'WINS'} WITH ${hi.toFixed(1)}`);fx(`${hi.toFixed(1)} WIN!`,'good');
-  await wait(TEMPO.winFreeze);if(!ok())return;
+  const bj=hi===21;
+  if(bj){callout('BLACKJACK!!','DAMAGE ×2','bj',TEMPO.winFreeze+500);say(`${NAME[winIdx]} — BLACKJACK!! DAMAGE ×2`)}
+  else{say(`${NAME[winIdx]} ${winIdx===0?'WIN':'WINS'} WITH ${hi.toFixed(1)}`);fx(`${hi.toFixed(1)} WIN!`,'good')}
+  await wait(TEMPO.winFreeze+(bj?300:0));if(!ok())return;
   wa.classList.remove('winFreeze');P.forEach((p,i)=>$('#actor'+i).classList.remove('shade'));
   if(win.team===1)S.play('vo_roundwin_enemy');
   await wait(TEMPO.winPose);if(!ok())return;
@@ -457,7 +461,9 @@ async function resolve(){
   // 3) impact
   let gainT=0;const deaths=[],hurt=[];
   for(const e of enemies){
-    const due=Math.round(hi*10),have=Math.round(e.money*10),payT=Math.min(have,due),ei=P.indexOf(e),b=actorBox(ei),dir=e.team===0?-1:1;
+    const eBust=total(e)>21,mult=(bj?BJ_MULT:1)*(eBust?BUST_MULT:1);
+    if(eBust)floatText($(`#seat${P.indexOf(e)} .score`),`BUST ×${BUST_MULT}`,'minus',-26,80);
+    const due=Math.round(hi*10)*mult,have=Math.round(e.money*10),payT=Math.min(have,due),ei=P.indexOf(e),b=actorBox(ei),dir=e.team===0?-1:1;
     FX.slash(b.x,b.top+b.h*.38,big,win.team===0?1:-1);
     FX.blood(b.x,b.top+b.h*.38,dir,big||have-payT<=0);
     FX.sparks(b.x,b.top+b.h*.38);

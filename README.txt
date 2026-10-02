@@ -144,3 +144,10 @@ v038
 v039
 - iOS: audio/playback-mode unlock now runs on touchend/click (iOS ignores touchstart/pointerdown for media). Boot/title use click.
 - Cache busting: style.css / sound.js / game.js loaded with ?v=39. Bump the number when you update files.
+
+
+v040 ANTI-STALL RULES
+- BLACKJACK = winning total exactly 21.0 (any number of cards): damage x2. "BLACKJACK!! DAMAGE x2" callout during the winner freeze.
+- A loser who BUSTED takes damage x2 ("BUST x2" pops over their score). Stacks with BLACKJACK (x4). Still capped at their money.
+- Constants: BJ_MULT / BUST_MULT in game.js.
+- Simulation (6000 games): mean rounds 13.8 -> 5.8, median 8 -> 4, p90 30 -> 12, max 218 -> 80.

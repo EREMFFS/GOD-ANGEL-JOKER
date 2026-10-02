@@ -556,3 +556,7 @@ body,button{font-family:var(--f-text)}
   25%{filter:brightness(1.9) drop-shadow(0 0 10px #fff) drop-shadow(0 0 26px #ffcf40)}
   50%{filter:brightness(2.4) saturate(.5) drop-shadow(0 0 12px #fff) drop-shadow(0 0 30px #ffcf40)}
   100%{filter:brightness(1.35) drop-shadow(0 0 6px #fff1a8) drop-shadow(0 0 18px rgba(255,200,40,.95))}}
+
+/* ===================== v040: BLACKJACK callout ===================== */
+.callout.bj .coMain{font-size:66px;color:#fff3b0;text-shadow:0 4px 0 #000,0 0 16px #ff3a20,0 0 34px rgba(255,200,60,.95)}
+.callout.bj .coSub{font:400 30px/1 var(--f-display);color:#ff5a4a;letter-spacing:4px;text-shadow:0 3px #000,0 0 10px rgba(255,40,20,.8)}
