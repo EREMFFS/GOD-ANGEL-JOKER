@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 /* =========================================================
-   DARK DHETH JOKER v037
+   DARK DHETH JOKER v038
    Rules (unchanged):
    - 2 vs 2, decimal blackjack (each card has +0.0〜+0.9), 52 + JOKER(0〜10)
    - start ¥50万 each. The single highest valid total wins and takes

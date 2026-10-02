@@ -135,3 +135,7 @@ v037
 - Enemy RAISE also plays vo_roundwin_enemy (05) at the start.
 - Sound mapping fix: the old "08" file was this winner sound, so it was wrongly used at round start.
   Round start now uses the "06" file; the separate ally round-win voice slot was removed.
+
+
+v038
+- iPhone: sound plays even with the silent (ringer) switch on. navigator.audioSession.type="playback" plus a looping silent <audio> started on tap.
