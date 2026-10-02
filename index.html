@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>DARK DHETH JOKER v037</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="viewport">
+<main id="game">
+
+  <!-- ===== TOP BANNER (title art crop) + message strip ===== -->
+  <header class="banner">
+    <img src="assets/banner.jpg" alt="">
+    <button id="restart" class="restart" type="button">NEW</button>
+    <button id="mute" class="mute" type="button">♪ ON</button>
+  </header>
+  <div class="msgbar">
+    <div id="message" class="message">50M EACH — LET THE BLOOD FLOW</div>
+    <div class="round"><span>ROUND</span><b id="round">1</b></div>
+  </div>
+
+  <!-- ===== ARENA ===== -->
+  <section id="arena" class="arena">
+    <div class="arenaBg"></div>
+    <div id="arenaDim" class="arenaDim"></div>
+
+    <!-- back row (behind table) -->
+    <div id="actor1" class="actor back ally"   style="--dir:1"><div class="rig"><img class="body" src="assets/stage_anim/ally_idle_0.png" alt=""></div></div>
+    <div id="actor2" class="actor back enemy flip" style="--dir:-1"><div class="rig"><img class="body" src="assets/stage_anim/enemyA_idle_0.png" alt=""></div></div>
+
+    <img class="table" src="assets/table.png" alt="">
+    <div id="deckPile" class="deckPile"><span>53</span></div>
+
+    <!-- front row (near side, facing each other) -->
+    <div id="actor0" class="actor front ally"  style="--dir:1"><div class="rig"><img class="body" src="assets/stage_anim/you_idle_0.png" alt=""></div></div>
+    <div id="actor3" class="actor front enemy flip" style="--dir:-1"><div class="rig"><img class="body" src="assets/stage_anim/enemyB_idle_0.png" alt=""></div></div>
+
+    <div id="arenaFlash" class="arenaFlash"></div>
+
+    <!-- seats: public cards / score / face / money (outer = front actor, inner = back actor) -->
+    <div id="seat0" class="seat ally"  style="left:3px"><div class="cards"></div><div class="score">--</div><div class="portrait"><img class="face" src="assets/face_you_0.png" alt=""><span class="tag">YOU</span></div><div class="money">¥50M</div></div>
+    <div id="seat1" class="seat ally"  style="left:81px"><div class="cards"></div><div class="score">--</div><div class="portrait"><img class="face" src="assets/face_ally_0.png" alt=""><span class="tag">ALLY</span></div><div class="money">¥50M</div></div>
+    <div id="seat2" class="seat enemy" style="left:387px"><div class="cards"></div><div class="score">--</div><div class="portrait"><img class="face" src="assets/face_enemyA_0.png" alt=""><span class="tag">ENEMY A</span></div><div class="money">¥50M</div></div>
+    <div id="seat3" class="seat enemy" style="left:465px"><div class="cards"></div><div class="score">--</div><div class="portrait"><img class="face" src="assets/face_enemyB_0.png" alt=""><span class="tag">ENEMY B</span></div><div class="money">¥50M</div></div>
+  </section>
+
+  <!-- ===== TEAM BALANCE ===== -->
+  <section class="teamBar">
+    <div class="barSlot"><div id="teamBlue" class="teamBlue"></div><div id="teamRed" class="teamRed"></div><i id="barMark" class="barMark"></i></div>
+    <img class="frame" src="assets/ui_bar.png" alt="">
+    <div id="teamBlueMoney" class="teamMoney blue">¥100M</div>
+    <div id="teamRedMoney" class="teamMoney red">¥100M</div>
+  </section>
+
+  <!-- ===== YOUR HAND ===== -->
+  <section class="handPanel">
+    <img class="frame" src="assets/ui_hand.png" alt="">
+    <div id="handCards" class="handCards"></div>
+    <div class="totalBox"><small>TOTAL</small><strong id="total">0.0</strong></div>
+  </section>
+
+  <!-- ===== ACTIONS ===== -->
+  <section class="actions">
+    <img class="frame" src="assets/ui_buttons.png" alt="">
+    <button id="hit"   class="btn hit"   type="button" aria-label="HIT">HIT</button>
+    <button id="stand" class="btn stand" type="button" aria-label="STAND">STAND</button>
+    <button id="raise" class="btn raise" type="button" aria-label="RAISE" disabled>RAISE</button>
+  </section>
+
+  <div id="raiseChoice" class="raiseChoice"><span>RAISE: REVIVE YOUR ALLY — YOUR MONEY IS SPLIT IN HALF</span><button id="skipRaise" type="button">HOLD</button></div>
+
+  <div id="joker" class="joker hidden">
+    <img class="frame" src="assets/ui/window_wide.png" alt="">
+    <div class="jkInner"><b>JOKER</b><small>CHOOSE ITS VALUE 0 - 10</small><div id="jokerButtons"></div></div>
+  </div>
+
+  <div id="callout" class="callout"><div class="coMain"></div><div class="coSub"></div></div>
+  <div id="fx" class="fx"></div>
+  <div id="motionLayer" class="motionLayer"></div>
+
+  <div id="gameOver" class="gameOver hidden">
+    <div class="gameOverPanel">
+      <img class="frame" src="assets/ui/window_tall.png" alt="">
+      <div id="gameOverTitle" class="gameOverTitle">GAME OVER</div>
+      <div id="gameOverSub" class="gameOverSub"></div>
+      <div id="gameOverStats" class="gameOverStats"></div>
+      <div class="gameOverButtons">
+        <button id="again" type="button">PLAY AGAIN</button>
+        <button id="backTitle" type="button">TITLE</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="titleScreen" class="titleScreen" tabindex="0" aria-label="DARK DHETH JOKER title screen">
+    <div class="titleArt">
+      <img src="assets/title_base.jpg" alt="DARK DHETH JOKER">
+      <img class="titlePush" src="assets/title_push.png" alt="PUSH ANY KEY">
+    </div>
+  </div>
+  <div id="boot" class="boot hidden">
+    <div class="bootMain">DARK DHETH JOKER</div>
+    <div class="bootSub">TOUCH TO BEGIN</div>
+    <div class="bootNote">SOUND ON</div>
+  </div>
+</main>
+</div>
+<script src="sound.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
