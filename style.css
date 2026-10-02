@@ -560,3 +560,7 @@ body,button{font-family:var(--f-text)}
 /* ===================== v040: BLACKJACK callout ===================== */
 .callout.bj .coMain{font-size:66px;color:#fff3b0;text-shadow:0 4px 0 #000,0 0 16px #ff3a20,0 0 34px rgba(255,200,60,.95)}
 .callout.bj .coSub{font:400 30px/1 var(--f-display);color:#ff5a4a;letter-spacing:4px;text-shadow:0 3px #000,0 0 10px rgba(255,40,20,.8)}
+
+/* ===================== v041: SYNCHRO ATTACK ===================== */
+.callout.sync .coMain{font-size:66px;color:#d8f0ff;text-shadow:0 4px 0 #000,0 0 16px #3aa0ff,0 0 34px rgba(255,230,120,.9)}
+.callout.sync .coSub{font:400 22px/1 var(--f-display);color:#ffe08a;letter-spacing:3px}

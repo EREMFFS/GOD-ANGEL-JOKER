@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 /* =========================================================
-   DARK DHETH JOKER v040
+   DARK DHETH JOKER v041
    Rules (unchanged):
    - 2 vs 2, decimal blackjack (each card has +0.0〜+0.9), 52 + JOKER(0〜10)
    - start ¥50万 each. The single highest valid total wins and takes
@@ -432,54 +432,61 @@ async function resolve(){
   const valid=P.filter(p=>p.alive&&total(p)<=21);
   if(!valid.length){say('ALL BUST — NO CONTEST');fx('NO CONTEST','neutral');return holdNeutralRound(token)}
   const hi=Math.max(...valid.map(total)),w=valid.filter(p=>total(p)===hi);
-  if(w.length!==1){say(`${hi.toFixed(1)} TIE — NO BLOOD SPILLED`);fx('DRAW','neutral');return holdNeutralRound(token)}
-  const win=w[0],winIdx=P.indexOf(win),enemies=P.filter(p=>p.alive&&p.team!==win.team),big=hi>=BIG_HIT;
+  // tie for 1st across teams = draw. Tie between teammates = SYNCHRO ATTACK (both strike at once).
+  if(new Set(w.map(p=>p.team)).size>1){say(`${hi.toFixed(1)} TIE — NO BLOOD SPILLED`);fx('DRAW','neutral');return holdNeutralRound(token)}
+  const WS=w,wIdx=WS.map(p=>P.indexOf(p)),team=WS[0].team,sync=WS.length>1;
+  const enemies=P.filter(p=>p.alive&&p.team!==team),big=hi>=BIG_HIT,bj=hi===21;
+  const who=sync?`${NAME[wIdx[0]]} & ${NAME[wIdx[1]]}`:NAME[wIdx[0]];
 
-  // 1) winner declared: the winner freezes and shines (with se_win_flash), everyone else darkens
-  $('#seat'+winIdx).classList.add('win');
-  const wa=$('#actor'+winIdx);
-  P.forEach((p,i)=>{if(i!==winIdx)$('#actor'+i).classList.add('shade')});
-  setAnim(win,'win',TEMPO.winFreeze+TEMPO.winPose);clearInterval(win.frameT);   // hold the pose (freeze)
-  wa.classList.add('winFreeze');
+  // 1) winner(s) declared: freeze and shine (se_win_flash), everyone else darkens
+  wIdx.forEach(i=>$('#seat'+i).classList.add('win'));
+  P.forEach((p,i)=>{if(!wIdx.includes(i))$('#actor'+i).classList.add('shade')});
+  WS.forEach((p,k)=>{setAnim(p,'win',TEMPO.winFreeze+TEMPO.winPose);clearInterval(p.frameT);$('#actor'+wIdx[k]).classList.add('winFreeze');
+    const b=actorBox(wIdx[k]);FX.burst(b.x,b.top+b.h*.45,240);FX.sparks(b.x,b.top+b.h*.45)});
   S.play('se_win_flash');FX.flash('#fff6d0',160,.45);
-  {const b=actorBox(winIdx);FX.burst(b.x,b.top+b.h*.45,240);FX.sparks(b.x,b.top+b.h*.45)}
-  const bj=hi===21;
-  if(bj){callout('BLACKJACK!!','DAMAGE ×2','bj',TEMPO.winFreeze+500);say(`${NAME[winIdx]} — BLACKJACK!! DAMAGE ×2`)}
-  else{say(`${NAME[winIdx]} ${winIdx===0?'WIN':'WINS'} WITH ${hi.toFixed(1)}`);fx(`${hi.toFixed(1)} WIN!`,'good')}
-  await wait(TEMPO.winFreeze+(bj?300:0));if(!ok())return;
-  wa.classList.remove('winFreeze');P.forEach((p,i)=>$('#actor'+i).classList.remove('shade'));
-  if(win.team===1)S.play('vo_roundwin_enemy');
+  const tags=[];if(sync)tags.push('SYNCHRO ATTACK');if(bj)tags.push(`DAMAGE ×${BJ_MULT}`);
+  if(sync||bj){
+    callout(bj?'BLACKJACK!!':'SYNCHRO!!',bj&&sync?`SYNCHRO ATTACK — DAMAGE ×${BJ_MULT}`:bj?`DAMAGE ×${BJ_MULT}`:`${hi.toFixed(1)} — TWO BLADES AT ONCE`,bj?'bj':'sync',TEMPO.winFreeze+500);
+    say(`${who} — ${bj?'BLACKJACK!! ':''}${sync?'SYNCHRO ATTACK':''}${bj&&!sync?'DAMAGE ×'+BJ_MULT:''}`);
+  }else{say(`${who} ${wIdx[0]===0?'WIN':'WINS'} WITH ${hi.toFixed(1)}`);fx(`${hi.toFixed(1)} WIN!`,'good')}
+  await wait(TEMPO.winFreeze+(sync||bj?300:0));if(!ok())return;
+  wIdx.forEach(i=>$('#actor'+i).classList.remove('winFreeze'));P.forEach((p,i)=>$('#actor'+i).classList.remove('shade'));
+  if(team===1)S.play('vo_roundwin_enemy');
   await wait(TEMPO.winPose);if(!ok())return;
 
-  // 2) losers brace, winner attacks
+  // 2) losers brace, winner(s) attack — together
   for(const e of enemies)setAnim(e,'shout',420);
   await wait(TEMPO.loserReact);if(!ok())return;
-  if(big)FX.dim(true);
-  setAnim(win,big?'attackBig':'attack',big?720:560);
+  if(big||sync)FX.dim(true);
+  WS.forEach(p=>setAnim(p,big?'attackBig':'attack',big?720:560));
   await wait(big?300:210);if(!ok())return;
 
-  // 3) impact
-  let gainT=0;const deaths=[],hurt=[];
+  // 3) impact: every winner takes hi×mult from every living enemy (still no overkill)
+  const gains=WS.map(()=>0);const deaths=[],hurt=[];
   for(const e of enemies){
-    const eBust=total(e)>21,mult=(bj?BJ_MULT:1)*(eBust?BUST_MULT:1);
-    if(eBust)floatText($(`#seat${P.indexOf(e)} .score`),`BUST ×${BUST_MULT}`,'minus',-26,80);
-    const due=Math.round(hi*10)*mult,have=Math.round(e.money*10),payT=Math.min(have,due),ei=P.indexOf(e),b=actorBox(ei),dir=e.team===0?-1:1;
-    FX.slash(b.x,b.top+b.h*.38,big,win.team===0?1:-1);
-    FX.blood(b.x,b.top+b.h*.38,dir,big||have-payT<=0);
+    const eBust=total(e)>21,mult=(bj?BJ_MULT:1)*(eBust?BUST_MULT:1),ei=P.indexOf(e),b=actorBox(ei),dir=e.team===0?-1:1;
+    if(eBust)floatText($(`#seat${ei} .score`),`BUST ×${BUST_MULT}`,'minus',-26,80);
+    let have=Math.round(e.money*10);const startHave=have;
+    WS.forEach((wp,k)=>{
+      const payT=Math.min(have,Math.round(hi*10)*mult);have-=payT;gains[k]+=payT;
+      later(()=>{FX.slash(b.x,b.top+b.h*(.32+k*.14),big,team===0?1:-1)},k*90);
+      if(payT>0)moneyMotion(ei,wIdx[k],payT/10);
+    });
+    FX.blood(b.x,b.top+b.h*.38,dir,big||sync||have<=0);
     FX.sparks(b.x,b.top+b.h*.38);
-    if(big)FX.ring(b.x,b.top+b.h*.4,'#fff',160);
-    moneyMotion(ei,winIdx,payT/10);
-    e.money=(have-payT)/10;gainT+=payT;
+    if(big||sync)FX.ring(b.x,b.top+b.h*.4,'#fff',sync?190:160);
+    e.money=have/10;
     if(e.money<=0){e.money=0;deaths.push(e);setAnim(e,'hurt',900)}else{hurt.push(e);setAnim(e,'hurt',640)}
   }
   S.play('se_money');
   if(hurt.length)voice('hurt',hurt[0].team);
-  FX.flash(big?'#ffffff':'#ffe6e6',big?200:120,big?.8:.5);FX.shake(big?11:6,big?460:300);
-  const gain=gainT/10;render();
-  floatText($(`#seat${winIdx} .portrait`),`+${yen(gain)}`,'plus',-10,420);
+  FX.flash(big||sync?'#ffffff':'#ffe6e6',big||sync?200:120,big||sync?.8:.5);FX.shake(big||sync?12:6,big||sync?480:300);
+  render();
+  WS.forEach((p,k)=>floatText($(`#seat${wIdx[k]} .portrait`),`+${yen(gains[k]/10)}`,'plus',-10,420));
   await wait(TEMPO.money);if(!ok())return;
   FX.dim(false);P.forEach((p,i)=>$('#actor'+i).classList.remove('shade'));
-  win.money=Math.round((win.money+gain)*10)/10;say(`${NAME[winIdx]} +${yen(gain)}`);render();
+  WS.forEach((p,k)=>{p.money=Math.round(p.money*10+gains[k])/10});
+  say(WS.map((p,k)=>`${NAME[wIdx[k]]} +${yen(gains[k]/10)}`).join('  '));render();
 
   // 4) deaths: collapse → bones
   if(deaths.length){

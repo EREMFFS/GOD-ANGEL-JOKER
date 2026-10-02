@@ -151,3 +151,9 @@ v040 ANTI-STALL RULES
 - A loser who BUSTED takes damage x2 ("BUST x2" pops over their score). Stacks with BLACKJACK (x4). Still capped at their money.
 - Constants: BJ_MULT / BUST_MULT in game.js.
 - Simulation (6000 games): mean rounds 13.8 -> 5.8, median 8 -> 4, p90 30 -> 12, max 218 -> 80.
+
+
+v041 SYNCHRO ATTACK
+- Fix: a tie for 1st between TEAMMATES is no longer a draw. Both winners freeze/shine together ("SYNCHRO!!" callout) and attack at once.
+  Each winner takes hi x mult from every living enemy (no overkill: the first takes up to the cap, the second takes what is left).
+- A tie for 1st across opposing teams is still a draw.
