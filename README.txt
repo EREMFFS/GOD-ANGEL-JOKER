@@ -139,3 +139,8 @@ v037
 
 v038
 - iPhone: sound plays even with the silent (ringer) switch on. navigator.audioSession.type="playback" plus a looping silent <audio> started on tap.
+
+
+v039
+- iOS: audio/playback-mode unlock now runs on touchend/click (iOS ignores touchstart/pointerdown for media). Boot/title use click.
+- Cache busting: style.css / sound.js / game.js loaded with ?v=39. Bump the number when you update files.

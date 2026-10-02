@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 /* =========================================================
-   DARK DHETH JOKER v038
+   DARK DHETH JOKER v039
    Rules (unchanged):
    - 2 vs 2, decimal blackjack (each card has +0.0〜+0.9), 52 + JOKER(0〜10)
    - start ¥50万 each. The single highest valid total wins and takes
@@ -578,7 +578,6 @@ let titleReady=false;
 function showTitleWithMusic(){S.unlock();S.playBgm('bgm_title',false);titleReady=true}
 function bootTap(e){
   const b=$('#boot');if(!b||b.classList.contains('hidden'))return;
-  if(e)e.preventDefault();
   b.classList.add('hidden');showTitleWithMusic();
 }
 function titleInput(e){
@@ -593,8 +592,8 @@ const title=$('#titleScreen');
 if(title){
   S.unlock();S.playBgm('bgm_title',false);      // works where autoplay is allowed
   setTimeout(()=>{if(S.state==='running')titleReady=true;else $('#boot').classList.remove('hidden')},250);
-  $('#boot').addEventListener('pointerdown',bootTap);
-  title.addEventListener('pointerdown',titleInput);
+  $('#boot').addEventListener('click',bootTap);
+  title.addEventListener('click',titleInput);
   window.addEventListener('keydown',e=>{if(document.body.classList.contains('titleDone'))return;if(!$('#boot').classList.contains('hidden'))bootTap(e);else titleInput(e)});
 }
 else{document.body.classList.add('titleDone');reset()}

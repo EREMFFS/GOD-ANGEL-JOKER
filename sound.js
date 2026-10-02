@@ -102,7 +102,10 @@ window.Sound=(()=>{
   }
   document.addEventListener('visibilitychange',()=>{if(!ctx)return;if(document.hidden){ctx.suspend();if(keeper)keeper.pause()}else{ctx.resume();forcePlayback()}});
   // any tap re-asserts playback mode (iOS may drop it after interruptions)
-  window.addEventListener('pointerdown',()=>{if(ctx){forcePlayback();if(ctx.state!=='running')ctx.resume()}},{passive:true});
+  // iOS Safari only lets media start on touchEND / click (not on touchstart/pointerdown),
+  // so (re)assert playback mode and resume audio on every such gesture.
+  const gesture=()=>{forcePlayback();if(ctx&&ctx.state!=='running')ctx.resume()};
+  ['touchend','click','keydown','pointerup'].forEach(ev=>window.addEventListener(ev,gesture,{passive:true,capture:true}));
 
   return{unlock,play,playBgm,stopBgm,setMuted,get state(){return ctx?ctx.state:'none'},get muted(){return muted},get ready(){return !!buffers.bgm_game},VOL};
 })();
